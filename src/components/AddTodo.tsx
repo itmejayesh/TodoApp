@@ -1,42 +1,85 @@
 "use client";
 
-import { useTodos } from "@/store/todo";
-import React, { useState } from "react";
+import { useTodos as useTodo } from "@/store/todo";
+import { useFormik } from "formik";
+import { useEffect, useState } from "react";
+import * as yup from "yup";
 
 type Props = {};
 
-const AddTodo = (props: Props) => {
-  const [todo, setTodo] = useState("");
-  const { handleAddTodo } = useTodos();
+const taskSchema = yup.object().shape({
+  todo: yup.string().min(5).required(" Vaild task is required"),
+});
 
-  const handleFormSubmit = (e: React.FocusEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    handleAddTodo(todo);
-    setTodo(" ");
-  };
+const AddTodo = (props: Props) => {
+  // const handleFormSubmit = (e: React.FocusEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   handleAddTodo(values.todo);
+  // };
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { handleAddTodo } = useTodo();
+  const {
+    values,
+    touched,
+    errors,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    isValid,
+  } = useFormik({
+    initialValues: {
+      todo: "",
+    },
+    validationSchema: taskSchema,
+    onSubmit: (values: { todo: string }, formikHelpers: any) => {
+      handleAddTodo(values.todo);
+      formikHelpers.resetForm();
+    },
+  });
+
+  useEffect(() => {
+    setIsSubmitting(isValid);
+  }, [isValid]);
 
   return (
     <form
-      className="flex px-5 flex-col lg:flex-row justify-center my-8 flex-grow items-center gap-5"
-      onSubmit={handleFormSubmit}
+      className="grid gap-5 grid-cols-3 grid-rows-1 px-5 my-8 items-center"
+      onSubmit={handleSubmit}
     >
       <input
-        className="text-white rounded-lg p-3 lg:mr-5 placeholder:text-black/30 block py-1.5 w-full
-        shadow-sm  focus:outline-none border-transparent border-2 bg-transparent border-gray-600
-         placeholder:text-gray-400  focus:border-blue-600 transition-all
-         "
+        className={` ${
+          errors.todo && touched.todo
+            ? `text-white rounded-lg p-3 placeholder:text-black/30 block w-full shadow-sm focus:outline-none focus:border-red-600 border-2 bg-transparent border-red-600 placeholder:text-gray-400 transition-all`
+            : ``
+        } text-white rounded-lg p-3 lg:mr-5 placeholder:text-black/30 block py-1.5 w-full
+          shadow-sm  focus:outline-none border-2 bg-transparent border-gray-600
+           placeholder:text-gray-400  focus:border-blue-600 transition-all col-span-3 lg:col-span-2 row-span-1`}
         type="text"
+        name="todo"
         placeholder="Write your task...."
-        value={todo}
-        onChange={(e) => setTodo(e.target.value)}
+        value={values.todo}
+        onChange={handleChange}
+        onBlur={handleBlur}
       />
-
       <button
         type="submit"
-        className=" px-6 py-1 bg-blue-600 rounded-full w-full lg:w-1/4"
+        className={`px-6 py-2 hover:opacity-70 rounded-full col-span-3 lg:col-span-1 ${
+          errors.todo && touched.todo
+            ? "bg-red-600 shake-horizontal"
+            : "bg-blue-600"
+        } ${
+          (isSubmitting && !errors.todo) || touched.todo
+            ? "bg-blue-600"
+            : "bg-red-600 shake-horizontal"
+        }`}
       >
         ADD Task
       </button>
+      {errors.todo && touched.todo && (
+        <p className="text-red-600 row-span-1 col-span-3">
+          Please input a valid task
+        </p>
+      )}
     </form>
   );
 };

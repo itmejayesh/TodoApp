@@ -15,6 +15,8 @@ export type TodoContext = {
   handleAddTodo: (task: string) => void;
   toggleTodoCompleted: (id: string) => void;
   handleTodoDelete: (id: string) => void;
+  handleSelectAll: () => void;
+  handleDeleteAll: () => void;
 };
 
 export const todosContext = createContext<TodoContext | null>(null);
@@ -24,6 +26,26 @@ export const TodoProvider = ({ children }: { children: ReactNode }) => {
     const newTodos = localStorage.getItem("todos") || "[]";
     return JSON.parse(newTodos) as Todo[];
   });
+
+  const handleSelectAll = () => {
+    setTodos((prev) => {
+      const reversedTodos = prev.every((task) => task.completed);
+      const updatedTodos = prev.map((task) => ({
+        ...task,
+        completed: !reversedTodos,
+      }));
+      localStorage.setItem("todos", JSON.stringify(updatedTodos));
+      return updatedTodos;
+    });
+  };
+
+  const handleDeleteAll = () => {
+    setTodos((prev) => {
+      const deleteTodo = prev.filter((task) => !task.completed);
+      localStorage.setItem("todos", JSON.stringify(deleteTodo));
+      return deleteTodo;
+    });
+  };
 
   //task add, update, delete methods are defined here
 
@@ -52,6 +74,7 @@ export const TodoProvider = ({ children }: { children: ReactNode }) => {
       return newTodos;
     });
   };
+
   const handleTodoDelete = (id: string) => {
     setTodos((prev) => {
       const deleteTodo = prev.filter((task) => task.id !== id);
@@ -62,7 +85,14 @@ export const TodoProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <todosContext.Provider
-      value={{ todos, handleAddTodo, toggleTodoCompleted, handleTodoDelete }}
+      value={{
+        todos,
+        handleAddTodo,
+        toggleTodoCompleted,
+        handleTodoDelete,
+        handleSelectAll,
+        handleDeleteAll,
+      }}
     >
       {children}
     </todosContext.Provider>

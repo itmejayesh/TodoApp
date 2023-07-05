@@ -1,6 +1,46 @@
+"use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { BiLoaderAlt } from "react-icons/bi";
+import toast, { Toaster } from "react-hot-toast";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 export default function SignupPage() {
+  const router = useRouter();
+  const [buttonDisable, setButtonDisable] = useState(false);
+  const [Loading, setLoading] = useState(false);
+  const [user, setUser] = useState({
+    email: "",
+    username: "",
+    password: "",
+  });
+
+  const onSignup = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.post(`/api/users/signup`, user);
+      toast.success("Signup success", response.data);
+      router.push("/login");
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (
+      user.email.length > 0 &&
+      user.password.length > 0 &&
+      user.username.length > 0
+    ) {
+      setButtonDisable(false);
+    } else {
+      setButtonDisable(true);
+    }
+  }, [user]);
+
   return (
     <>
       <div className="flex h-screen flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -27,6 +67,9 @@ export default function SignupPage() {
                   id="email"
                   name="email"
                   type="email"
+                  value={user.email}
+                  onChange={(e) => setUser({ ...user, email: e.target.value })}
+                  placeholder="email address"
                   autoComplete="email"
                   required
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -48,6 +91,11 @@ export default function SignupPage() {
                   id="username"
                   name="username"
                   type="text"
+                  value={user.username}
+                  onChange={(e) =>
+                    setUser({ ...user, username: e.target.value })
+                  }
+                  placeholder="username"
                   required
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
@@ -67,6 +115,11 @@ export default function SignupPage() {
                   id="password"
                   name="password"
                   type="password"
+                  value={user.password}
+                  onChange={(e) =>
+                    setUser({ ...user, password: e.target.value })
+                  }
+                  placeholder="password"
                   autoComplete="current-password"
                   required
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -76,10 +129,18 @@ export default function SignupPage() {
 
             <div>
               <button
+                onClick={onSignup}
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="flex items-center gap-2 w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                Log in
+                {buttonDisable ? "No Sing In" : "Sing Up"}
+                {Loading ? (
+                  <span className=" text-lg animate-spin">
+                    <BiLoaderAlt />
+                  </span>
+                ) : (
+                  ""
+                )}
               </button>
             </div>
           </form>

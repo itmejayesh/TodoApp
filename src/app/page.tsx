@@ -6,7 +6,7 @@ import "./globals.css";
 
 type Props = {};
 
-const page = (props: Props) => {
+const page = async (props: Props) => {
   return (
     <>
       <main className="p-5 inset-0 mx-auto md:w-[75vh]">

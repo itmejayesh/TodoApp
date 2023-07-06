@@ -2,44 +2,115 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BiLoaderAlt } from "react-icons/bi";
-import toast, { Toaster } from "react-hot-toast";
+import { toast, ToastOptions } from "react-toastify";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useFormik } from "formik";
+import * as yup from "yup";
+
+//TODO: catch block run 1st before try block fix the bug later
+
+//yup validation schema for signup form
+const userSchema = yup.object().shape({
+  username: yup
+    .string()
+    .required("Username is required")
+    .min(3, "Username must be at least 3 characters")
+    .max(20, "Username must not exceed 20 characters")
+    .matches(
+      /^[a-zA-Z0-9_-]+$/,
+      "Username can only contain letters, numbers, underscores, and hyphens"
+    ),
+  email: yup.string().email("Invalid email").required("Email is required"),
+  password: yup
+    .string()
+    .required("Password is required")
+    .min(8, "Password must be at least 8 characters")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]+$/,
+      "Password must contain at least one uppercase letter, one lowercase letter, and one digit"
+    ),
+});
+
+const errorState: ToastOptions = {
+  position: "bottom-right",
+  autoClose: 5000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "light",
+};
+
+const successState: ToastOptions = {
+  position: "bottom-right",
+  autoClose: 5000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "light",
+};
 
 export default function SignupPage() {
   const router = useRouter();
-  const [buttonDisable, setButtonDisable] = useState(false);
-  const [Loading, setLoading] = useState(false);
-  const [user, setUser] = useState({
-    email: "",
-    username: "",
-    password: "",
-  });
+  const [isLoading, setLoading] = useState(false);
 
-  const onSignup = async () => {
+  //backend call for sign up
+  const onSignup = async (values: any) => {
     try {
       setLoading(true);
-      const response = await axios.post(`/api/users/signup`, user);
-      toast.success("Signup success", response.data);
-      router.push("/login");
+      const response = await axios.post(`/api/users/signup`, values);
+      const responseData = response.data;
+      if (!responseData.error) {
+        toast.success("Signup success", successState);
+        router.push("/login");
+      } else {
+        if (responseData.error === "User already exists") {
+          toast.error("User already exists", errorState);
+        }
+      }
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(
+        "An error occurred during sign in. Please try again later.",
+        errorState
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (
-      user.email.length > 0 &&
-      user.password.length > 0 &&
-      user.username.length > 0
-    ) {
-      setButtonDisable(false);
-    } else {
-      setButtonDisable(true);
-    }
-  }, [user]);
+  //form submitting and validation handling
+  const {
+    values,
+    handleChange,
+    handleSubmit,
+    isValid,
+    isSubmitting,
+    errors,
+    touched,
+    setFieldTouched,
+  } = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+      username: "",
+    },
+    validationSchema: userSchema,
+    onSubmit: (values) => {
+      //1st check on first render and refresh value is not empty
+      if (values.username && values.email && values.password) {
+        onSignup(values);
+      }
+    },
+  });
+
+  //manually handling touched state value true or false
+  const handleBlur = (field: string) => {
+    setFieldTouched(field, true);
+  };
 
   return (
     <>
@@ -54,7 +125,7 @@ export default function SignupPage() {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" action="#" method="POST">
+          <form className="space-y-6" onSubmit={handleSubmit} noValidate>
             <div>
               <label
                 htmlFor="email"
@@ -67,13 +138,23 @@ export default function SignupPage() {
                   id="email"
                   name="email"
                   type="email"
-                  value={user.email}
-                  onChange={(e) => setUser({ ...user, email: e.target.value })}
+                  value={values.email}
+                  onChange={handleChange}
+                  //check the felid value is touched before make the felid touched value true
+                  onBlur={() => handleBlur("email")}
                   placeholder="email address"
                   autoComplete="email"
                   required
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className={`w-full rounded-md border-5 bg-transparent/5 placeholder:text-black/30 border-gray-600 py-1.5 text-white shadow-sm placeholder:text-gray-400 sm:text-sm sm:leading-6 ${
+                    touched.email && errors.email
+                      ? "text-white focus:outline-none focus:border-red-600 border-2 bg-transparent border-red-600 placeholder:text-gray-400 transition-all"
+                      : ""
+                  }  `}
                 />
+
+                {touched.email && errors.email && (
+                  <p className="text-red-600 mt-2 text-sm">{errors.email}</p>
+                )}
               </div>
             </div>
 
@@ -91,14 +172,20 @@ export default function SignupPage() {
                   id="username"
                   name="username"
                   type="text"
-                  value={user.username}
-                  onChange={(e) =>
-                    setUser({ ...user, username: e.target.value })
-                  }
+                  value={values.username}
+                  onChange={handleChange}
+                  onBlur={() => handleBlur("username")}
                   placeholder="username"
                   required
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className={`w-full rounded-md border-5 bg-transparent/5 placeholder:text-black/30 border-gray-600 py-1.5 text-white shadow-sm placeholder:text-gray-400 sm:text-sm sm:leading-6 ${
+                    touched.username && errors.username
+                      ? "text-white focus:outline-none focus:border-red-600 border-2 bg-transparent border-red-600 placeholder:text-gray-400 transition-all"
+                      : ""
+                  }  `}
                 />
+                {touched.username && errors.username && (
+                  <p className="text-red-600 mt-2 text-sm">{errors.username}</p>
+                )}
               </div>
             </div>
             <div>
@@ -115,15 +202,21 @@ export default function SignupPage() {
                   id="password"
                   name="password"
                   type="password"
-                  value={user.password}
-                  onChange={(e) =>
-                    setUser({ ...user, password: e.target.value })
-                  }
+                  value={values.password}
+                  onChange={handleChange}
                   placeholder="password"
+                  onBlur={() => handleBlur("password")}
                   autoComplete="current-password"
                   required
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className={`w-full rounded-md border-5 bg-transparent/5 placeholder:text-black/30 border-gray-600 py-1.5 text-white shadow-sm placeholder:text-gray-400 sm:text-sm sm:leading-6 ${
+                    touched.password && errors.password
+                      ? "text-white focus:outline-none focus:border-red-600 border-2 bg-transparent border-red-600 placeholder:text-gray-400 transition-all"
+                      : ""
+                  }  `}
                 />
+                {touched.password && errors.password && (
+                  <p className="text-red-600 mt-2 text-sm">{errors.password}</p>
+                )}
               </div>
             </div>
 
@@ -131,16 +224,21 @@ export default function SignupPage() {
               <button
                 onClick={onSignup}
                 type="submit"
-                className="flex items-center gap-2 w-full justify-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                disabled={
+                  !isValid ||
+                  isSubmitting ||
+                  Boolean(touched.email && errors.email)
+                }
+                className={`${
+                  isValid
+                    ? "bg-blue-600 hover:bg-blue-500 slide-in-elliptic-top-fwd"
+                    : "bg-red-600 cursor-not-allowed hover:bg-red-500 shake-horizontal"
+                } 
+                
+                cursor-pointer flex items-center gap-2 w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm`}
               >
-                {buttonDisable ? "No Sing In" : "Sing Up"}
-                {Loading ? (
-                  <span className=" text-lg animate-spin">
-                    <BiLoaderAlt />
-                  </span>
-                ) : (
-                  ""
-                )}
+                {isSubmitting ? "Signing Up..." : "Sign Up"}
+                {isLoading && <BiLoaderAlt className="text-lg animate-spin" />}
               </button>
             </div>
           </form>
@@ -149,7 +247,7 @@ export default function SignupPage() {
             already a member? &nbsp;
             <Link
               href="/login"
-              className="font-semibold leading-6 text-blue-600 hover:text-indigo-500"
+              className="font-semibold leading-6 text-blue-600 hover:text-blue-400"
             >
               log in now
             </Link>

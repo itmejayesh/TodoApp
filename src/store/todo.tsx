@@ -1,6 +1,8 @@
 "use client";
 
 import { ReactNode, createContext, useContext, useState } from "react";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
 export type Todo = {
   id: string;
@@ -22,7 +24,10 @@ export const todosContext = createContext<TodoContext | null>(null);
 
 export const TodoProvider = ({ children }: { children: ReactNode }) => {
   const [todos, setTodos] = useState<Todo[]>(() => {
-    const newTodos = localStorage.getItem("todos") || "[]";
+    const newTodos =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("todos") || "[]"
+        : "[]";
     return JSON.parse(newTodos) as Todo[];
   });
 

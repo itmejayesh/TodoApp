@@ -1,8 +1,11 @@
 "use client";
 
 import { useTodos as useTodo } from "@/store/todo";
+import axios from "axios";
 import { useFormik } from "formik";
+import { BiLoaderAlt } from "react-icons/bi";
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import * as yup from "yup";
 
 type Props = {};
@@ -12,10 +15,24 @@ const taskSchema = yup.object().shape({
 });
 
 const AddTodo = (props: Props) => {
+  const [Loading, setLoading] = useState(false);
   // const handleFormSubmit = (e: React.FocusEvent<HTMLFormElement>) => {
   //   e.preventDefault();
   //   handleAddTodo(values.todo);
   // };
+
+  const onTaskAdded = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.post("/api/usertask", values.todo);
+      toast.success("task added successfully", response.data);
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { handleAddTodo } = useTodo();
   const {
@@ -62,7 +79,7 @@ const AddTodo = (props: Props) => {
         onBlur={handleBlur}
       />
       <button
-        type="submit"
+        onClick={onTaskAdded}
         className={`px-6 py-2 hover:opacity-70 rounded-full col-span-3 lg:col-span-1 ${
           errors.todo && touched.todo
             ? "bg-red-600 shake-horizontal"
@@ -73,12 +90,13 @@ const AddTodo = (props: Props) => {
             : "bg-red-600 shake-horizontal"
         }`}
       >
-        ADD Task
+        <p className="flex justify-center items-center gap-3">
+          Add task
+          <span>{Loading ? <BiLoaderAlt className="animate-spin" /> : ""}</span>
+        </p>
       </button>
       {errors.todo && touched.todo && (
-        <p className="text-red-600 row-span-1 col-span-3">
-          Please input a valid task
-        </p>
+        <p className="text-red-600 row-span-1 col-span-3">{errors.todo}</p>
       )}
     </form>
   );

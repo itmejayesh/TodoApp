@@ -5,9 +5,20 @@ import Navbar from "@/components/Navbar";
 import TodosMessage from "@/components/TodosMessage";
 import axios from "axios";
 import "./globals.css";
-import { toast } from "react-hot-toast";
+import { toast, ToastOptions } from "react-toastify";
 
 type Props = {};
+
+const successState: ToastOptions = {
+  position: "bottom-right",
+  autoClose: 5000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "light",
+};
 
 const page = (props: Props) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -15,7 +26,7 @@ const page = (props: Props) => {
   const logout = async () => {
     try {
       await axios.get("api/users/logout");
-      toast.success(`User logged out`);
+      toast.success(`User logged out`, successState);
       router.push("/login");
     } catch (error: any) {
       console.log(error.message);

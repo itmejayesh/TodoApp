@@ -14,13 +14,20 @@ export async function POST(request: NextRequest) {
     //checking if user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User not found. Please check your email and try again." },
+        { status: 400 }
+      );
     }
+    console.log(user);
 
     //check if password is correct
     const validPassword = await bcryptjs.compare(password, user.password);
     if (!validPassword) {
-      return NextResponse.json({ error: "Invalid password" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid password. Please enter the correct password." },
+        { status: 400 }
+      );
     }
 
     //creating token data
@@ -32,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     //creating token
     const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY!, {
-      expiresIn: "1d",
+      expiresIn: "1h",
     });
 
     //sending token to user cookies
@@ -45,6 +52,13 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        error:
+          error.message ||
+          "An error occurred during login. Please try again later.",
+      },
+      { status: 500 }
+    );
   }
 }

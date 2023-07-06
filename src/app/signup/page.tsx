@@ -2,11 +2,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BiLoaderAlt } from "react-icons/bi";
-import toast from "react-hot-toast";
+import { toast, ToastOptions } from "react-toastify";
 import axios from "axios";
 import { useState } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
+
+//TODO: catch block run 1st before try block fix the bug later
 
 //yup validation schema for signup form
 const userSchema = yup.object().shape({
@@ -30,6 +32,28 @@ const userSchema = yup.object().shape({
     ),
 });
 
+const errorState: ToastOptions = {
+  position: "bottom-right",
+  autoClose: 5000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "light",
+};
+
+const successState: ToastOptions = {
+  position: "bottom-right",
+  autoClose: 5000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+  progress: undefined,
+  theme: "light",
+};
+
 export default function SignupPage() {
   const router = useRouter();
   const [isLoading, setLoading] = useState(false);
@@ -39,10 +63,20 @@ export default function SignupPage() {
     try {
       setLoading(true);
       const response = await axios.post(`/api/users/signup`, values);
-      toast.success("Signup success", response.data);
-      router.push("/login");
+      const responseData = response.data;
+      if (!responseData.error) {
+        toast.success("Signup success", successState);
+        router.push("/login");
+      } else {
+        if (responseData.error === "User already exists") {
+          toast.error("User already exists", errorState);
+        }
+      }
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(
+        "An error occurred during sign in. Please try again later.",
+        errorState
+      );
     } finally {
       setLoading(false);
     }

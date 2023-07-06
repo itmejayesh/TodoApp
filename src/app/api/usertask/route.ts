@@ -7,15 +7,13 @@ Connect();
 export async function POST(request: NextRequest) {
   try {
     const reqBody = await request.json();
-    const { task, completed } = reqBody;
-
+    const { task } = reqBody;
     //checking is task body is empty
     if (!task) {
       return NextResponse.json({ error: "Task is required." }, { status: 400 });
     }
 
-    const userTask = new Task({ task, completed });
-
+    const userTask = new Task({ task });
     const savedUser = await userTask.save();
     console.log(savedUser);
 

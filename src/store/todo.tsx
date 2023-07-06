@@ -23,7 +23,13 @@ export type TodoContext = {
 export const todosContext = createContext<TodoContext | null>(null);
 
 export const TodoProvider = ({ children }: { children: ReactNode }) => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<Todo[]>(() => {
+    const newTodos =
+      typeof localStorage !== "undefined"
+        ? localStorage.getItem("todos") || "[]"
+        : "[]";
+    return JSON.parse(newTodos) as Todo[];
+  });
 
   const handleSelectAll = () => {
     setTodos((prev) => {
@@ -62,7 +68,6 @@ export const TodoProvider = ({ children }: { children: ReactNode }) => {
       return newTodos;
     });
   };
-
   const toggleTodoCompleted = (id: string) => {
     setTodos((prev) => {
       const newTodos = prev.map((task) => {

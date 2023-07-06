@@ -1,15 +1,26 @@
 "use client";
 import AddTodo from "@/components/AddTodo";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import TodosMessage from "@/components/TodosMessage";
 import axios from "axios";
-import React from "react";
 import "./globals.css";
+import { toast } from "react-hot-toast";
 
 type Props = {};
 
-const page = async (props: Props) => {
-  const logout = () => {};
+const page = (props: Props) => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const router = useRouter();
+  const logout = async () => {
+    try {
+      await axios.get("api/users/logout");
+      toast.success(`User logged out`);
+      router.push("/login");
+    } catch (error: any) {
+      console.log(error.message);
+    }
+  };
 
   return (
     <>

@@ -96,9 +96,7 @@ const AddTodo = (props: Props) => {
         </p>
       </button>
       {errors.todo && touched.todo && (
-        <p className="text-red-600 row-span-1 col-span-3">
-          Please input a valid task
-        </p>
+        <p className="text-red-600 row-span-1 col-span-3">{errors.todo}</p>
       )}
     </form>
   );

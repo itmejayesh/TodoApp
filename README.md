@@ -1,34 +1,53 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+TodoApp with User Authentication using Next.js 13 and TypeScript
+This project is a TodoApp built with Next.js 13 and TypeScript. It provides a user-friendly interface for managing tasks and includes user authentication features to ensure data privacy and security.
 
-## Getting Started
+Screens
+Login Screen: Allows users to log in to their accounts.
+![Todo_2](https://github.com/itmejayesh/TodoApp/assets/103041733/05075596-2e46-44dc-a322-b0e9cda46ea6)
 
-First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+Signup Screen: Enables users to create new accounts.
+![Todo_1](https://github.com/itmejayesh/TodoApp/assets/103041733/f4d5a8df-44a0-4536-839a-57063513c1f7)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Main App Page: Displays the user's task list and provides options for task management.
+![Todo_3](https://github.com/itmejayesh/TodoApp/assets/103041733/27f3e9fb-4492-46b8-acd4-fb0b1cc3ab1c)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Task Add Page: Allows users to add new tasks to their list.
+![Todo_4](https://github.com/itmejayesh/TodoApp/assets/103041733/4525dc35-88ad-4c46-b40f-0161b90513d0)
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Features
+User Authentication: Users can create accounts, log in, and securely manage their tasks.
+Task Management: Create, update, and delete tasks with ease.
+Local Storage: User data is stored locally using local storage, allowing for persistence across sessions.
+Error Handling and Validation: The application includes robust error handling and validation to ensure a smooth user experience.
+Getting Started
+Follow the steps below to set up and run the project locally:
 
-## Learn More
-
+Clone the repository.
+Install dependencies using npm install.
+Run the development server using npm run dev.
+Access the application at http://localhost:3000.
+Learn More
 To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Next.js Documentation - learn about Next.js features and API.
+Learn Next.js - an interactive Next.js tutorial.
+Deployment
+Deploy your TodoApp on the Vercel platform, which offers seamless Next.js deployment. For detailed deployment instructions, refer to the Next.js deployment documentation.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Contributing
+Contributions are welcome! If you would like to contribute to this project, please follow these steps:
 
-## Deploy on Vercel
+Fork the repository.
+Create a new branch for your feature or bug fix.
+Commit your changes and push them to your branch.
+Submit a pull request, describing your changes and their purpose.
+License
+This project is licensed under the MIT License. Feel free to use, modify, and distribute it according to the terms of the license.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Feel free to customize the description further based on your project's specific features and any additional information you'd like to include.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+
+
+

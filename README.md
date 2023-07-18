@@ -26,7 +26,7 @@ Follow the steps below to set up and run the project locally:
 Clone the repository.
 Install dependencies using npm install.
 Run the development server using npm run dev.
-Access the application at http://localhost:3000.
+Access the application at todo-app-three-sage-39.vercel.app/login.
 Learn More
 To learn more about Next.js, take a look at the following resources:
 
